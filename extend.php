@@ -15,4 +15,8 @@ return [
     (new Extend\Event())
         ->listen(PostWasApproved::class, Listeners\CountPostApprovals::class)
         ->listen(Saving::class, Listeners\UnapproveNewPosts::class),
+
+    (new Extend\Settings())
+        ->default('clarkwinkelmann-first-post-approval.discussionCount', 1)
+        ->default('clarkwinkelmann-first-post-approval.postCount', 1)
 ];
