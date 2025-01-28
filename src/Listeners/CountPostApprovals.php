@@ -19,7 +19,7 @@ class CountPostApprovals
             return;
         }
 
-        if ($event->post->number == 1) {
+        if ($event->post->number === 1) {
             $user->first_discussion_approval_count++;
         } else {
             $user->first_post_approval_count++;

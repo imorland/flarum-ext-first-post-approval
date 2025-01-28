@@ -2,6 +2,7 @@
 
 namespace ClarkWinkelmann\FirstPostApproval\Listeners;
 
+use Carbon\Carbon;
 use Flarum\Flags\Flag;
 use Flarum\Post\Event\Saving;
 use Flarum\Post\Post;
@@ -41,7 +42,7 @@ class UnapproveNewPosts
         $post->is_approved = false;
 
         $post->afterSave(function (Post $post) {
-            if ($post->number == 1) {
+            if ($post->number === 1) {
                 $post->discussion->is_approved = false;
                 $post->discussion->save();
             }
@@ -50,7 +51,7 @@ class UnapproveNewPosts
 
             $flag->post_id = $post->id;
             $flag->type = 'approval';
-            $flag->created_at = time();
+            $flag->created_at = Carbon::now();
 
             $flag->save();
         });
