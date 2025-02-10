@@ -45,6 +45,8 @@ class FirstPostApprovalRepository
         if ($user->comment_count < $this->requiredPostCount() || $user->discussion_count < $this->requiredDiscussionCount()) {
             return true;
         }
+
+        return false;
     }
 
     public function requiredDiscussionCount(): int
