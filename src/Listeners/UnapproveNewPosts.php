@@ -2,19 +2,19 @@
 
 namespace ClarkWinkelmann\FirstPostApproval\Listeners;
 
-use Carbon\Carbon;
-use Flarum\Flags\Flag;
+use ClarkWinkelmann\FirstPostApproval\Repository\FirstPostApprovalRepository;
 use Flarum\Post\Event\Saving;
-use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
 
 class UnapproveNewPosts
 {
     protected $settings;
+    protected $firstPosts;
 
-    public function __construct(SettingsRepositoryInterface $settings)
+    public function __construct(SettingsRepositoryInterface $settings, FirstPostApprovalRepository $firstPosts)
     {
         $this->settings = $settings;
+        $this->firstPosts = $firstPosts;
     }
 
     public function handle(Saving $event)
@@ -25,7 +25,7 @@ class UnapproveNewPosts
             return;
         }
 
-        $discussionCount = $this->settings->get('clarkwinkelmann-first-post-approval.discussionCount');
+        $discussionCount = $this->firstPosts->requiredDiscussionCount();
 
         if ($post->discussion->first_post_id === null && $discussionCount) {
             // If this is a new discussion and if a rule has been defined for new discussions
@@ -34,26 +34,13 @@ class UnapproveNewPosts
             }
         } else {
             // If this is a reply, or if there's no rule defined for new discussions
-            if (($event->actor->first_discussion_approval_count + $event->actor->first_post_approval_count) >= $this->settings->get('clarkwinkelmann-first-post-approval.postCount')) {
+            if (($event->actor->first_discussion_approval_count + $event->actor->first_post_approval_count) >= $this->firstPosts->requiredPostCount()) {
                 return;
             }
         }
 
         $post->is_approved = false;
 
-        $post->afterSave(function (Post $post) {
-            if ($post->number === 1) {
-                $post->discussion->is_approved = false;
-                $post->discussion->save();
-            }
-
-            $flag = new Flag();
-
-            $flag->post_id = $post->id;
-            $flag->type = 'approval';
-            $flag->created_at = Carbon::now();
-
-            $flag->save();
-        });
+        $this->firstPosts->flagPost($post);
     }
 }
