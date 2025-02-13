@@ -9,5 +9,6 @@ trait ExtensionDepsTrait
         $this->extension('clarkwinkelmann-first-post-approval');
         $this->extension('flarum-flags');
         $this->extension('flarum-approval');
+        $this->extension('fof-byobu');
     }
 }
